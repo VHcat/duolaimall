@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper SYSTEM "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cskaoyan.mall.product.mapper.CategoryHierarchyMapper">
+
+
+    <resultMap id="skuCategoryHierarchyInfo" type="com.cskaoyan.mall.product.model.CategoryHierarchy" autoMapping="true">
+
+    </resultMap>
+
+    <!--
+         1. 若thirdLevelCategoryId为null，则查询所有三级类目对应的一二级目录
+         2. 若thirdLevelCategoryId不为null，则查询指定三级类目对应的一二级类目
+      -->
+    <select id="selectCategoryHierarchy" resultMap="skuCategoryHierarchyInfo">
+        select
+        c1.id as first_level_category_id, c1.name as first_level_category_name,
+        c2.id as second_level_category_id, c2.name as second_level_category_name,
+        c3.id as third_level_category_id, c3.name as third_level_category_name
+        from first_level_category c1
+        inner join second_level_category c2 on c2.first_level_category_id = c1.id
+        inner join third_level_category c3 on c3.second_level_category_id = c2.id
+        <where>
+          <if test="thirdLevelCategoryId != null">
+              c3.id=#{thirdLevelCategoryId}
+          </if>
+        </where>
+    </select>
+
+</mapper>

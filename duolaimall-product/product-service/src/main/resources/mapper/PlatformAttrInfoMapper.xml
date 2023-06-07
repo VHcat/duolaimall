@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper SYSTEM "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<!--
+ namespace:接口的全限定类名
+-->
+<mapper namespace="com.cskaoyan.mall.product.mapper.PlatformAttrInfoMapper">
+
+    <!--结果集处理
+    autoMapping="true":实现自动映射
+    column：返回数据字段名
+    property：实体类属性名
+
+    -->
+    <resultMap id="platformAttrInfoMap" type="com.cskaoyan.mall.product.model.PlatformAttributeInfo" autoMapping="true">
+        <id column="id" property="id"></id>
+        <!--
+        property: 实体类属性名
+        ofType: 实体类属性名对应的类型
+        -->
+        <collection property="attrValueList" ofType="com.cskaoyan.mall.product.model.PlatformAttributeValue" autoMapping="true">
+            <id column="attr_value_id" property="id"></id>
+        </collection>
+
+    </resultMap>
+
+    <!--根据分类id查询平台属性集合-->
+    <select id="selectPlatFormAttrInfoList" resultMap="platformAttrInfoMap" >
+        select
+        pai.id,
+        pai.attr_name,
+        pai.category_id,
+        pai.category_level,
+        pav.id attr_value_id,
+        pav.value_name,
+        pav.attr_id
+        from platform_attr_info pai inner join platform_attr_value pav
+        on pai.id=pav.attr_id
+        <where>
+            <if test="firstLevelCategoryId !=null and firstLevelCategoryId !=0">
+                or ( pai.category_level=1 and pai.category_id=#{firstLevelCategoryId})
+            </if>
+            <if test="secondLevelCategoryId !=null and secondLevelCategoryId !=0">
+                or (pai.category_level=2 and pai.category_id=#{secondLevelCategoryId})
+            </if>
+            <if test="thirdLevelCategoryId !=null and thirdLevelCategoryId !=0">
+                or (pai.category_level=3 and pai.category_id=#{thirdLevelCategoryId})
+            </if>
+        </where>
+        order by pai.category_level ,pai.id
+    </select><select id="selectPlatformAttrInfoListBySkuId" resultMap="platformAttrInfoMap"></select>
+</mapper>
