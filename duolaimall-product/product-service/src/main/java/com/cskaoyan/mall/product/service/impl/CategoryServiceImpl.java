@@ -2,19 +2,20 @@ package com.cskaoyan.mall.product.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.cskaoyan.mall.product.converter.dto.CategoryConverter;
+import com.cskaoyan.mall.product.converter.dto.TrademarkConverter;
 import com.cskaoyan.mall.product.dto.*;
-import com.cskaoyan.mall.product.mapper.FirstLevelCategoryMapper;
-import com.cskaoyan.mall.product.mapper.SecondLevelCategoryMapper;
-import com.cskaoyan.mall.product.mapper.ThirdLevelCategoryMapper;
-import com.cskaoyan.mall.product.model.FirstLevelCategory;
-import com.cskaoyan.mall.product.model.SecondLevelCategory;
-import com.cskaoyan.mall.product.model.ThirdLevelCategory;
+import com.cskaoyan.mall.product.mapper.*;
+import com.cskaoyan.mall.product.model.*;
 import com.cskaoyan.mall.product.query.CategoryTrademarkParam;
 import com.cskaoyan.mall.product.service.CategoryService;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author VHcat 1377594091@qq.com
@@ -26,6 +27,12 @@ public class CategoryServiceImpl implements CategoryService {
     FirstLevelCategoryMapper firstLevelCategoryMapper;
     @Resource
     CategoryConverter categoryConverter;
+    @Resource
+    TrademarkMapper trademarkMapper;
+    @Resource
+    TrademarkConverter trademarkConverter;
+    @Resource
+    CategoryTrademarkMapper categoryTrademarkMapper;
 
     @Override
     public List<FirstLevelCategoryDTO> getFirstLevelCategory() {
@@ -60,22 +67,71 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public List<TrademarkDTO> findTrademarkList(Long category3Id) {
-        return null;
+        // 先通过三级类目类目查询品牌id，再通过品牌id查询其余数据
+//        QueryWrapper<CategoryTrademark> queryWrapper = new QueryWrapper<>();
+//        queryWrapper.eq("third_level_category_id", category3Id);
+//        List<CategoryTrademark> categoryTrademarkList = categoryTrademarkMapper.selectList(queryWrapper);
+        Map<String, Object> map = new HashMap<>();
+        map.put("third_level_category_id", category3Id);
+        List<CategoryTrademark> categoryTrademarkList = categoryTrademarkMapper.selectByMap(map);
+        // 获得品牌id
+        List<Trademark> trademarks = new ArrayList<>();
+        for (CategoryTrademark categoryTrademark : categoryTrademarkList) {
+            Long trademarkId = categoryTrademark.getTrademarkId();
+            Trademark trademark = trademarkMapper.selectById(trademarkId);
+            trademarks.add(trademark);
+        }
+        return trademarkConverter.trademarkPOs2DTOs(trademarks);
     }
+
 
     @Override
     public void save(CategoryTrademarkParam categoryTrademarkParam) {
+        List<Long> trademarkIdList = categoryTrademarkParam.getTrademarkIdList();
+        Long category3Id = categoryTrademarkParam.getCategory3Id();
+        for (Long aLong : trademarkIdList) {
+            CategoryTrademark categoryTrademark = new CategoryTrademark();
+            categoryTrademark.setThirdLevelCategoryId(category3Id);
+            categoryTrademark.setTrademarkId(aLong);
+            // 插入
+            categoryTrademarkMapper.insert(categoryTrademark);
+        }
 
     }
 
     @Override
     public List<TrademarkDTO> findUnLinkedTrademarkList(Long thirdLevelCategoryId) {
-        return null;
+        // 查询已经分类的品牌id
+        List<CategoryTrademark> categoryTrademarkList = categoryTrademarkMapper.selectList(null);
+        List<Long> categoryTrademarkIds = new ArrayList<>();
+        for (CategoryTrademark categoryTrademark : categoryTrademarkList) {
+            Long categoryTrademarkId = categoryTrademark.getTrademarkId();
+            categoryTrademarkIds.add(categoryTrademarkId);
+        }
+        // 总品牌id
+        List<Trademark> trademarkList = trademarkMapper.selectList(null);
+        List<Long> trademarkIds = new ArrayList<>();
+        for (Trademark trademark : trademarkList) {
+            Long id = trademark.getId();
+            trademarkIds.add(id);
+        }
+        // 所有的品牌类目去除已经被分类的品牌类目
+        // 对于category_trademark表中全部id和当前id取差集
+        List<Long> difference = trademarkIds.stream()
+                .filter(item -> !categoryTrademarkIds.contains(item))
+                .collect(Collectors.toList());
+        List<Trademark> unTrademarkList = trademarkMapper.selectBatchIds(difference);
+        return trademarkConverter.trademarkPOs2DTOs(unTrademarkList);
     }
 
     @Override
     public void remove(Long thirdLevelCategoryId, Long trademarkId) {
-
+        // 构建wrapper
+        QueryWrapper<CategoryTrademark> wrapper = new QueryWrapper<>();
+        wrapper.eq("third_level_category_id", thirdLevelCategoryId);
+        wrapper.eq("trademark_id", trademarkId);
+        // 删除
+        categoryTrademarkMapper.delete(wrapper);
     }
 
     @Override
@@ -87,8 +143,6 @@ public class CategoryServiceImpl implements CategoryService {
     public List<FirstLevelCategoryNodeDTO> getCategoryTreeList() {
         return null;
     }
-
-
 
 
 }

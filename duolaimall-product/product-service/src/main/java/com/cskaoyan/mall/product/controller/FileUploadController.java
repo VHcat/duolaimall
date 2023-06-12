@@ -8,6 +8,7 @@ import io.minio.PutObjectArgs;
 import io.minio.errors.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -20,6 +21,7 @@ import java.util.UUID;
  * Created by 北海 on 2023-06-06 11:07
  */
 @RestController
+@RequestMapping("/admin/product")
 public class FileUploadController {
 
     // 获取文件上传对应的地址
@@ -35,7 +37,7 @@ public class FileUploadController {
     /*
          返回的字符串，代表的是上传图片，对应的访问url
      */
-    @PostMapping("admin/product/fileUpload")
+    @PostMapping("/fileUpload")
     public Result fileUpload(MultipartFile file) throws IOException, InvalidKeyException, InvalidResponseException, InsufficientDataException, NoSuchAlgorithmException, ServerException, InternalException, XmlParserException, ErrorResponseException {
 
         // 创建一个MinioClient对象
@@ -45,7 +47,7 @@ public class FileUploadController {
                 .build();
 
 
-        // 判断桶是否存在，如果不存在则创建
+         // 判断桶是否存在，如果不存在则创建
         boolean exists = client.bucketExists(BucketExistsArgs
                 .builder()
                 .bucket(bucketName)
@@ -54,6 +56,17 @@ public class FileUploadController {
             System.out.println("桶" + bucketName + "不存在，重新创建！");
             client.makeBucket(MakeBucketArgs.builder().bucket(bucketName).build());
         }
+
+//        // 检查存储桶是否已经存在
+//        boolean isExist = client.bucketExists(BucketExistsArgs.builder().bucket(bucketName).build());
+//        if(isExist) {
+//            System.out.println("Bucket already exists.");
+//        } else {
+//            // 创建一个名为asiatrip的存储桶，用于存储照片的zip文件。
+//            client.makeBucket(MakeBucketArgs.builder()
+//                    .bucket(bucketName)
+//                    .build());
+//        }
 
         // 为了让文件名不重复根据时间和uuid，计算文件名
         String fileName = System.currentTimeMillis() + UUID.randomUUID().toString();
@@ -74,6 +87,8 @@ public class FileUploadController {
 
         // 上传成功，返回访问图片的url
         String url = endpointUrl + "/" + bucketName + "/" +fileName;
+        
+  
         return Result.ok(url);
 
     }

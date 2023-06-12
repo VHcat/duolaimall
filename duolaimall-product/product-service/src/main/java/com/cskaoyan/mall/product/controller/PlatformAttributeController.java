@@ -1,12 +1,9 @@
 package com.cskaoyan.mall.product.controller;
 
 import com.cskaoyan.mall.common.result.Result;
-import com.cskaoyan.mall.product.dto.FirstLevelCategoryDTO;
 import com.cskaoyan.mall.product.dto.PlatformAttributeInfoDTO;
-import com.cskaoyan.mall.product.dto.SecondLevelCategoryDTO;
-import com.cskaoyan.mall.product.dto.ThirdLevelCategoryDTO;
+import com.cskaoyan.mall.product.dto.PlatformAttributeValueDTO;
 import com.cskaoyan.mall.product.query.PlatformAttributeParam;
-import com.cskaoyan.mall.product.service.CategoryService;
 import com.cskaoyan.mall.product.service.PlatformAttributeService;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,34 +12,13 @@ import java.util.List;
 
 /**
  * @author VHcat 1377594091@qq.com
- * @since 2023/06/07 15:36
+ * @since 2023/06/08 14:05
  */
 @RestController
 @RequestMapping("/admin/product")
-public class AdminProductController {
-    @Resource
-    CategoryService categoryService;
+public class PlatformAttributeController {
     @Resource
     PlatformAttributeService platformAttributeService;
-
-    @GetMapping("/getCategory1")
-    public Result getCategory1() {
-        List<FirstLevelCategoryDTO> firstLevelCategory = categoryService.getFirstLevelCategory();
-        return Result.ok(firstLevelCategory);
-    }
-
-    // 查询二级类目
-    @GetMapping("/getCategory2/{firstLevelCategoryId}")
-    public Result getCategory2(@PathVariable long firstLevelCategoryId) {
-        List<SecondLevelCategoryDTO> secondLevelCategory = categoryService.getSecondLevelCategory(firstLevelCategoryId);
-        return Result.ok(secondLevelCategory);
-    }
-
-    @GetMapping("/getCategory3/{SecondLevelCategoryId}")
-    public Result gerCategory3(@PathVariable long SecondLevelCategoryId) {
-        List<ThirdLevelCategoryDTO> thirdLevelCategory = categoryService.getThirdLevelCategory(SecondLevelCategoryId);
-        return Result.ok(thirdLevelCategory);
-    }
 
     @GetMapping("/attrInfoList/{firstLevelCategoryId}/{secondLevelCategoryId}/{thirdLevelCategoryId}")
     public Result getAttrInfoList(@PathVariable Long firstLevelCategoryId,
@@ -59,4 +35,11 @@ public class AdminProductController {
         return Result.ok();
     }
 
+    // 平台属性值回显
+    @GetMapping("/getAttrValueList/{attrId}")
+    public Result<List<PlatformAttributeValueDTO>> getAttrInfoDTO(@PathVariable Long attrId) {
+        PlatformAttributeInfoDTO platformAttrInfo = platformAttributeService.getPlatformAttrInfo(attrId);
+        List<PlatformAttributeValueDTO> attrValueList = platformAttrInfo.getAttrValueList();
+        return Result.ok(attrValueList);
+    }
 }

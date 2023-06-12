@@ -85,6 +85,9 @@ public class PlatformAttributeServiceImpl implements PlatformAttributeService {
 
     @Override
     public PlatformAttributeInfoDTO getPlatformAttrInfo(Long attrId) {
-        return null;
+
+        PlatformAttributeInfo platformAttributeInfo = platformAttrInfoMapper.selectById(attrId);
+
+        return platformAttributeInfoConverter.platformAttributeInfoPO2DTO(platformAttributeInfo);
     }
 }
