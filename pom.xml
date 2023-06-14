@@ -16,7 +16,7 @@
         <!--<module>duolaimall-search</module>-->
         <!--<module>duolaimall-order</module>-->
         <!--<module>duolaimall-pay</module>-->
-        <!--<module>duolaimall-web</module>-->
+        <module>duolaimall-web</module>
         <!--<module>duolaimall-promo</module>-->
         <!--<module>duolaimall-ware</module>-->
     </modules>

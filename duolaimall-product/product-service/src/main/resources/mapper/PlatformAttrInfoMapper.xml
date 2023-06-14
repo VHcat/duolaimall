@@ -25,6 +25,7 @@
 
     <!--根据分类id查询平台属性集合-->
     <select id="selectPlatFormAttrInfoList" resultMap="platformAttrInfoMap" >
+
         select
         pai.id,
         pai.attr_name,
@@ -47,5 +48,28 @@
             </if>
         </where>
         order by pai.category_level ,pai.id
-    </select><select id="selectPlatformAttrInfoListBySkuId" resultMap="platformAttrInfoMap"></select>
+    </select>
+
+
+    <!--
+        根据skuId 获取平台属性数据
+    -->
+    <select id="selectPlatformAttrInfoListBySkuId" resultMap="platformAttrInfoMap">
+
+        select   pai.id,
+                 pai.attr_name,
+                 pai.category_id,
+                 pai.category_level,
+                 pav.id attr_value_id,
+                 pav.value_name,
+                 pav.attr_id
+
+        from platform_attr_info pai
+               inner join  platform_attr_value pav  on pai.id=pav.attr_id
+               inner join  sku_platform_attr_value spav on spav.value_id=pav.id
+        where spav.sku_id=#{skuId}
+
+    </select>
+
+
 </mapper>

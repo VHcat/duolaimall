@@ -17,6 +17,7 @@ import com.cskaoyan.mall.product.service.SpuService;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -42,6 +43,8 @@ public class SpuServiceImpl implements SpuService {
     SpuPosterMapper spuPosterMapper;
     @Resource
     SpuInfoConverter spuInfoConverter;
+    @Resource
+    SkuSaleAttrValueMapper skuSaleAttrValueMapper;
 
     @Override
     public SpuInfoPageDTO getSpuInfoPage(Page<SpuInfo> pageParam, SpuInfoParam spuInfo) {
@@ -131,11 +134,25 @@ public class SpuServiceImpl implements SpuService {
 
     @Override
     public List<SpuPosterDTO> findSpuPosterBySpuId(Long spuId) {
-        return null;
+        QueryWrapper<SpuPoster> spuInfoQueryWrapper = new QueryWrapper<>();
+        spuInfoQueryWrapper.eq("spu_id",spuId);
+        List<SpuPoster> spuPosterList = spuPosterMapper.selectList(spuInfoQueryWrapper);
+
+        return spuInfoConverter.spuPosterPOs2DTOs(spuPosterList);
     }
 
     @Override
     public Map<String, Long> getSkuValueIdsMap(Long spuId) {
-        return null;
+        // key = 125|123 ,value = 37
+        List<SkuSaleAttributeValuePermutation> permutationList = skuSaleAttrValueMapper.selectSaleAttrValuesBySpu(spuId);
+        HashMap<String, Long> valueIdsMap = new HashMap<>();
+        if (!CollectionUtils.isEmpty(permutationList)) {
+            permutationList.forEach(singlePermutation -> {
+                valueIdsMap.put(singlePermutation.getSkuSaleAttrValuePermutation()
+                        , singlePermutation.getSkuId());
+            });
+        }
+
+        return valueIdsMap;
     }
 }

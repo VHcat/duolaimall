@@ -3,20 +3,17 @@ package com.cskaoyan.mall.product.service.impl;
 import com.alibaba.nacos.client.naming.utils.CollectionUtils;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.cskaoyan.mall.product.converter.dto.PlatformAttributeInfoConverter;
+import com.cskaoyan.mall.product.converter.dto.SkuInfoConverter;
 import com.cskaoyan.mall.product.converter.dto.SkuInfoPageConverter;
+import com.cskaoyan.mall.product.converter.dto.SpuInfoConverter;
 import com.cskaoyan.mall.product.converter.param.SkuInfoParamConverter;
 import com.cskaoyan.mall.product.dto.PlatformAttributeInfoDTO;
 import com.cskaoyan.mall.product.dto.SkuInfoDTO;
 import com.cskaoyan.mall.product.dto.SkuInfoPageDTO;
 import com.cskaoyan.mall.product.dto.SpuSaleAttributeInfoDTO;
-import com.cskaoyan.mall.product.mapper.SkuImageMapper;
-import com.cskaoyan.mall.product.mapper.SkuInfoMapper;
-import com.cskaoyan.mall.product.mapper.SkuPlatformAttrValueMapper;
-import com.cskaoyan.mall.product.mapper.SkuSaleAttrValueMapper;
-import com.cskaoyan.mall.product.model.SkuImage;
-import com.cskaoyan.mall.product.model.SkuInfo;
-import com.cskaoyan.mall.product.model.SkuPlatformAttributeValue;
-import com.cskaoyan.mall.product.model.SkuSaleAttributeValue;
+import com.cskaoyan.mall.product.mapper.*;
+import com.cskaoyan.mall.product.model.*;
 import com.cskaoyan.mall.product.query.SkuInfoParam;
 import com.cskaoyan.mall.product.service.SkuService;
 import org.springframework.stereotype.Service;
@@ -43,6 +40,17 @@ public class SkuServiceImpl implements SkuService {
     SkuSaleAttrValueMapper skuSaleAttrValueMapper;
     @Resource
     SkuPlatformAttrValueMapper skuPlatformAttrValueMapper;
+    @Resource
+    SkuInfoConverter skuInfoConverter;
+    @Resource
+    SpuSaleAttrInfoMapper spuSaleAttrInfoMapper;
+    @Resource
+    SpuInfoConverter spuInfoConverter;
+    @Resource
+    PlatformAttrInfoMapper platformAttrInfoMapper;
+    @Resource
+    PlatformAttributeInfoConverter platformAttributeInfoConverter;
+
 
     @Override
     public void saveSkuInfo(SkuInfoParam skuInfoParam) {
@@ -124,21 +132,31 @@ public class SkuServiceImpl implements SkuService {
 
     @Override
     public SkuInfoDTO getSkuInfo(Long skuId) {
-        return null;
+        SkuInfo skuInfo = skuInfoMapper.selectById(skuId);
+        List<SkuImage> skuImageList = skuImageMapper.getSkuImages(skuId);
+        skuInfo.setSkuImageList(skuImageList);
+        return skuInfoConverter.skuInfoPO2DTO(skuInfo);
     }
 
     @Override
     public BigDecimal getSkuPrice(Long skuId) {
-        return null;
+        SkuInfo skuInfo = skuInfoMapper.selectById(skuId);
+        if (null != skuInfo) {
+            return skuInfo.getPrice();
+        }
+        return new BigDecimal("0");
+
     }
 
     @Override
     public List<SpuSaleAttributeInfoDTO> getSpuSaleAttrListCheckBySku(Long skuId, Long spuId) {
-        return null;
+        List<SpuSaleAttributeInfo> spuSaleAttributeInfos = spuSaleAttrInfoMapper.selectSpuSaleAttrListCheckedBySku(skuId, spuId);
+        return spuInfoConverter.spuSaleAttributeInfoPOs2DTOs(spuSaleAttributeInfos);
     }
 
     @Override
     public List<PlatformAttributeInfoDTO> getPlatformAttrInfoBySku(Long skuId) {
-        return null;
+        List<PlatformAttributeInfo> platformAttributeInfos = platformAttrInfoMapper.selectPlatformAttrInfoListBySkuId(skuId);
+        return platformAttributeInfoConverter.platformAttributeInfoPOs2DTOs(platformAttributeInfos);
     }
 }

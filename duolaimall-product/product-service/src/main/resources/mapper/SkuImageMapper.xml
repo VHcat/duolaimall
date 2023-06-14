@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper SYSTEM "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<!--
+ namespace:接口的全限定类名
+-->
+<mapper namespace="com.cskaoyan.mall.product.mapper.SkuImageMapper">
+<resultMap id="skuImage" type="com.cskaoyan.mall.product.model.SkuImage" autoMapping="true">
+
+</resultMap>
+
+        <!-- 根据spuId 获取到销售属性值Id 与skuId 组成的数据集 -->
+<select id="getSkuImages" resultMap="skuImage">
+select
+ski.id,
+ski.sku_id,
+ski.spu_img_id,
+ski.is_default,
+spi.img_name,
+spi.img_url
+from sku_image ski
+inner  join spu_image spi on ski.spu_img_id=spi.id
+where ski.sku_id=#{skuId}
+</select>
+</mapper>

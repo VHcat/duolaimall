@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper SYSTEM "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cskaoyan.mall.product.mapper.SkuSaleAttrValueMapper">
+
+
+    <resultMap id="skuSaleAttrValuePermutation" type="com.cskaoyan.mall.product.model.SkuSaleAttributeValuePermutation" autoMapping="true">
+
+    </resultMap>
+
+    <!-- 根据spuId 获取到销售属性值Id 与skuId 组成的数据集 -->
+    <select id="selectSaleAttrValuesBySpu" resultMap="skuSaleAttrValuePermutation">
+        select
+          group_concat(sksav.spu_sale_attr_value_id order by spsav.spu_sale_attr_id asc  separator '|' ) sku_sale_attr_value_permutation,
+          sku_id
+        from sku_sale_attr_value sksav
+        inner  join spu_sale_attr_value spsav on spsav.id=sksav.spu_sale_attr_value_id
+        inner join sku_info on sksav.sku_id=sku_info.id and sku_info.is_sale=1
+        where sksav.spu_id=#{spuId}
+        group by sksav.sku_id
+    </select>
+
+</mapper>

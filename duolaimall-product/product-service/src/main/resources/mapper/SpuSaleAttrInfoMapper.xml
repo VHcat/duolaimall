@@ -31,4 +31,25 @@
                       on ssai.id=ssav.spu_sale_attr_id
                   where ssai.spu_id=#{spuId}
     </select>
+    
+   <select id="selectSpuSaleAttrListCheckedBySku" resultMap="spuSaleAttrMap">
+
+        select
+          ssai.id,
+          ssai.spu_id,
+          ssai.sale_attr_id,
+          ssai.sale_attr_name,
+          spsav.id  sale_attr_value_id,
+          spsav.spu_sale_attr_id,
+          spsav.spu_sale_attr_value_name,
+          if(sksav.sku_id is null,0,1) is_checked
+
+        from spu_sale_attr_info ssai
+        inner  join  spu_sale_attr_value spsav
+          on ssai.spu_id = spsav.spu_id and ssai.id = spsav.spu_sale_attr_id
+        left join sku_sale_attr_value sksav
+          on  sksav.spu_sale_attr_value_id = spsav.id and sksav.sku_id =#{skuId}
+        where ssai.spu_id=#{spuId}
+        order by  ssai.sale_attr_id ,spsav.id
+    </select>
 </mapper>
