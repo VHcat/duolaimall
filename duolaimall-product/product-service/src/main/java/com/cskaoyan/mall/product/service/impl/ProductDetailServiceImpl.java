@@ -1,12 +1,14 @@
 package com.cskaoyan.mall.product.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.cskaoyan.mall.common.constant.RedisConst;
 import com.cskaoyan.mall.product.client.SearchApiClient;
 import com.cskaoyan.mall.product.dto.*;
 import com.cskaoyan.mall.product.service.CategoryService;
 import com.cskaoyan.mall.product.service.ProductDetailService;
 import com.cskaoyan.mall.product.service.SkuService;
 import com.cskaoyan.mall.product.service.SpuService;
+import org.redisson.api.RBloomFilter;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -40,10 +42,10 @@ public class ProductDetailServiceImpl implements ProductDetailService {
     @Override
     public ProductDetailDTO getItemBySkuId(Long skuId) {
         ProductDetailDTO productDetailDTO = new ProductDetailDTO();
-//        RBloomFilter<Object> bloomFilter = redissonClient.getBloomFilter(RedisConst.SKU_BLOOM_FILTER);
-//        if (!bloomFilter.contains(skuId)) {
-//            return productDetailDTO;
-//        }
+        RBloomFilter<Object> bloomFilter = redissonClient.getBloomFilter(RedisConst.SKU_BLOOM_FILTER);
+        if (!bloomFilter.contains(skuId)) {
+            return productDetailDTO;
+        }
 
 
         // 通过skuId 查询skuInfo

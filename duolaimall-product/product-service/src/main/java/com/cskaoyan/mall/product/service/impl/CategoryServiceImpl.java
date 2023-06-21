@@ -1,6 +1,7 @@
 package com.cskaoyan.mall.product.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.cskaoyan.mall.common.cache.RedisCache;
 import com.cskaoyan.mall.product.converter.dto.CategoryConverter;
 import com.cskaoyan.mall.product.converter.dto.TrademarkConverter;
 import com.cskaoyan.mall.product.dto.*;
@@ -137,6 +138,7 @@ public class CategoryServiceImpl implements CategoryService {
         categoryTrademarkMapper.delete(wrapper);
     }
 
+    @RedisCache(prefix = "categoryHierarchyByCategory3Id:")
     @Override
     public CategoryHierarchyDTO getCategoryViewByCategoryId(Long thirdLevelCategoryId) {
         List<CategoryHierarchy> categoryHierarchies = categoryHierarchyMapper.selectCategoryHierarchy(thirdLevelCategoryId);
@@ -147,21 +149,21 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @RedisCache(prefix = "category")
     public List<FirstLevelCategoryNodeDTO> getCategoryTreeList() {
         // 声明几个json 集合
         ArrayList<FirstLevelCategoryNodeDTO> firstLevelCategoryTreeNodes = new ArrayList<>();
         // 声明获取所有分类数据集合
         List<CategoryHierarchy> categoryHierarchyList = categoryHierarchyMapper.selectCategoryHierarchy(null);
         // 循环上面的集合并安一级分类Id 进行分组
-        Map<Long, List<CategoryHierarchy>> firstLevelCategoryMap = categoryHierarchyList.stream()
-                .collect(Collectors.groupingBy(CategoryHierarchy::getFirstLevelCategoryId));
+        Map<Long, List<CategoryHierarchy>> firstLevelCategoryMap  = categoryHierarchyList.stream().collect(Collectors.groupingBy(CategoryHierarchy::getFirstLevelCategoryId));
         int index = 1;
         // 获取一级分类下所有数据
-        for (Map.Entry<Long, List<CategoryHierarchy>> firstLevelEntry : firstLevelCategoryMap.entrySet()) {
+        for (Map.Entry<Long, List<CategoryHierarchy>> firstLevelEntry  : firstLevelCategoryMap.entrySet()) {
             // 获取一级分类Id
-            Long firstLevelCategoryId = firstLevelEntry.getKey();
+            Long firstLevelCategoryId  = firstLevelEntry.getKey();
             // 获取一级分类下面的所有集合
-            List<CategoryHierarchy> firstLevelCategories = firstLevelEntry.getValue();
+            List<CategoryHierarchy> firstLevelCategories  = firstLevelEntry.getValue();
             //
             FirstLevelCategoryNodeDTO firstLevelCategoryNode = new FirstLevelCategoryNodeDTO();
             firstLevelCategoryNode.setIndex(index);

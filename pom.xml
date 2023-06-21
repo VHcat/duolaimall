@@ -11,9 +11,9 @@
         <module>duolaimall-gateway</module>
         <module>duolaimall-product</module>
         <module>duolaimall-common</module>
-        <!--<module>duolaimall-user</module>-->
+        <module>duolaimall-user</module>
         <!--<module>duolaimall-cart</module>-->
-        <!--<module>duolaimall-search</module>-->
+        <module>duolaimall-search</module>
         <!--<module>duolaimall-order</module>-->
         <!--<module>duolaimall-pay</module>-->
         <module>duolaimall-web</module>

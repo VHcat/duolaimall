@@ -3,6 +3,8 @@ package com.cskaoyan.mall.product.service.impl;
 import com.alibaba.nacos.client.naming.utils.CollectionUtils;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.cskaoyan.mall.common.cache.RedisCache;
+import com.cskaoyan.mall.common.constant.RedisConst;
 import com.cskaoyan.mall.product.converter.dto.PlatformAttributeInfoConverter;
 import com.cskaoyan.mall.product.converter.dto.SkuInfoConverter;
 import com.cskaoyan.mall.product.converter.dto.SkuInfoPageConverter;
@@ -16,6 +18,8 @@ import com.cskaoyan.mall.product.mapper.*;
 import com.cskaoyan.mall.product.model.*;
 import com.cskaoyan.mall.product.query.SkuInfoParam;
 import com.cskaoyan.mall.product.service.SkuService;
+import org.redisson.api.RBloomFilter;
+import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -50,6 +54,8 @@ public class SkuServiceImpl implements SkuService {
     PlatformAttrInfoMapper platformAttrInfoMapper;
     @Resource
     PlatformAttributeInfoConverter platformAttributeInfoConverter;
+    @Resource
+    RedissonClient redissonClient;
 
 
     @Override
@@ -115,6 +121,10 @@ public class SkuServiceImpl implements SkuService {
         updateWrapper.eq("id", skuId);
         updateWrapper.set("is_sale", 1);
         skuInfoMapper.update(null, updateWrapper);
+
+        //添加布隆过滤
+        RBloomFilter<Long> rbloomFilter = redissonClient.getBloomFilter(RedisConst.SKU_BLOOM_FILTER);
+        rbloomFilter.add(skuId);
     }
 
     /**
@@ -130,6 +140,7 @@ public class SkuServiceImpl implements SkuService {
         skuInfoMapper.update(null, updateWrapper);
     }
 
+    @RedisCache(prefix = RedisConst.SKUKEY_PREFIX)
     @Override
     public SkuInfoDTO getSkuInfo(Long skuId) {
         SkuInfo skuInfo = skuInfoMapper.selectById(skuId);
@@ -148,12 +159,14 @@ public class SkuServiceImpl implements SkuService {
 
     }
 
+    @RedisCache(prefix = "spuSaleAttrListCheckBySku:")
     @Override
     public List<SpuSaleAttributeInfoDTO> getSpuSaleAttrListCheckBySku(Long skuId, Long spuId) {
         List<SpuSaleAttributeInfo> spuSaleAttributeInfos = spuSaleAttrInfoMapper.selectSpuSaleAttrListCheckedBySku(skuId, spuId);
         return spuInfoConverter.spuSaleAttributeInfoPOs2DTOs(spuSaleAttributeInfos);
     }
 
+    @RedisCache(prefix = "platformAttributeInfoList:")
     @Override
     public List<PlatformAttributeInfoDTO> getPlatformAttrInfoBySku(Long skuId) {
         List<PlatformAttributeInfo> platformAttributeInfos = platformAttrInfoMapper.selectPlatformAttrInfoListBySkuId(skuId);

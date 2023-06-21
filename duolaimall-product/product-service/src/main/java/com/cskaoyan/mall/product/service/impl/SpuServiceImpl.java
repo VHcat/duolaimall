@@ -3,6 +3,7 @@ package com.cskaoyan.mall.product.service.impl;
 import com.alibaba.nacos.client.naming.utils.CollectionUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.cskaoyan.mall.common.cache.RedisCache;
 import com.cskaoyan.mall.product.converter.dto.SpuInfoConverter;
 import com.cskaoyan.mall.product.converter.dto.SpuInfoPageConverter;
 import com.cskaoyan.mall.product.converter.param.SpuInfoParamConverter;
@@ -132,15 +133,17 @@ public class SpuServiceImpl implements SpuService {
         return spuInfoConverter.spuSaleAttributeInfoPOs2DTOs(spuSaleAttributeInfos);
     }
 
+    @RedisCache(prefix = "SpuPosterList:")
     @Override
     public List<SpuPosterDTO> findSpuPosterBySpuId(Long spuId) {
         QueryWrapper<SpuPoster> spuInfoQueryWrapper = new QueryWrapper<>();
-        spuInfoQueryWrapper.eq("spu_id",spuId);
+        spuInfoQueryWrapper.eq("spu_id", spuId);
         List<SpuPoster> spuPosterList = spuPosterMapper.selectList(spuInfoQueryWrapper);
 
         return spuInfoConverter.spuPosterPOs2DTOs(spuPosterList);
     }
 
+    @RedisCache(prefix = "skuValueIdsMap:")
     @Override
     public Map<String, Long> getSkuValueIdsMap(Long spuId) {
         // key = 125|123 ,value = 37
