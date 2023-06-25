@@ -12,13 +12,13 @@
         <module>duolaimall-product</module>
         <module>duolaimall-common</module>
         <module>duolaimall-user</module>
-        <!--<module>duolaimall-cart</module>-->
+        <module>duolaimall-cart</module>
         <module>duolaimall-search</module>
-        <!--<module>duolaimall-order</module>-->
-        <!--<module>duolaimall-pay</module>-->
+        <module>duolaimall-order</module>
+        <module>duolaimall-pay</module>
         <module>duolaimall-web</module>
-        <!--<module>duolaimall-promo</module>-->
-        <!--<module>duolaimall-ware</module>-->
+        <module>duolaimall-promo</module>
+        <module>duolaimall-ware</module>
     </modules>
     <packaging>pom</packaging>
 

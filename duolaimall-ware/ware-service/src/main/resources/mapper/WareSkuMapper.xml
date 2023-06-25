@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.cskaoyan.mall.ware.mapper.WareSkuMapper">
+
+    <select id="selectStockBySkuid" resultType="java.lang.Integer">
+        select sum(stock-IFNULL(stock_locked,0)) from ware_sku  where sku_id=#{skuid}
+    </select>
+
+    <select id="selectStockBySkuidForUpdate" resultType="java.lang.Integer">
+        select  stock-IFNULL(stock_locked,0) as available_stock from ware_sku  where sku_id=#{skuId} and warehouse_id=#{warehouseId} for update
+    </select>
+
+    <update id="incrStockLocked">
+        UPDATE  ware_sku   SET  stock_locked=  IFNULL(stock_locked,0)+#{stockLocked}  WHERE sku_id=#{skuId} and warehouse_id=#{warehouseId}
+    </update>
+</mapper>

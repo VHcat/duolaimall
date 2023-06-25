@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.cskaoyan.mall.order.mapper.OrderInfoMapper">
+
+    <sql id="order_column">
+        id,parent_order_id,order_status,user_id,payment_way,consignee,consignee_tel,delivery_address,
+        total_amount,original_total_amount,order_comment,out_trade_no,trade_body,order_type,tracking_no,
+        refundable_time,create_time,update_time,expire_time
+    </sql>
+
+    <sql id="detail_column">
+        id,order_id,sku_id,sku_name,img_url,order_price,sku_num,create_time,update_time
+    </sql>
+
+    <select id="selectPageByUserId" resultMap="orderInfoDTOMap">
+        select <include refid="order_column" />
+        from order_info
+        where user_id = #{userId}
+        and order_status not in('CLOSED', 'SPLIT')
+        and is_deleted = 0
+        order by id desc
+    </select>
+
+    <resultMap id="orderInfoDTOMap" type="com.cskaoyan.mall.order.model.OrderInfo" autoMapping="true">
+        <id property="id" column="id"></id>
+        <!--一对多-->
+        <collection property="orderDetailList"
+                    ofType="com.cskaoyan.mall.order.model.OrderDetail"
+                    autoMapping="true"
+                    column="id"
+                    select="selectOrderDetailDTOByOrderId">
+        </collection>
+    </resultMap>
+
+    <select id="selectOrderDetailDTOByOrderId" resultType="com.cskaoyan.mall.order.model.OrderDetail">
+        select <include refid="detail_column"/> from order_detail
+        where order_id = #{id} and is_deleted = 0
+        order by id desc
+    </select>
+
+
+</mapper>

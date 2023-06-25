@@ -2,7 +2,6 @@ package com.cskaoyan.mall.common.util;
 
 import org.apache.commons.lang.time.DateUtils;
 
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -63,10 +62,10 @@ public class DateUtil {
     public static boolean dateCompare(Date beginDate, Date endDate) {
         // endDate > beginDate
         if (DateUtil.truncatedCompareTo(beginDate, endDate, Calendar.SECOND) == 1) {
-            return false;
+            return true;
         }
         // beginDate  <= endDate
-        return true;
+        return false;
     }
 
     /**

@@ -89,7 +89,7 @@ public class AuthGlobleFilter implements GlobalFilter, Ordered {
             // 针对获取页面的请求，返回重定向的响应
             ServerHttpResponse response = exchange.getResponse();
             response.setStatusCode(HttpStatus.SEE_OTHER);
-            response.getHeaders().set(HttpHeaders.LOCATION, "http://www.csmall.login?orignalUrl=" + request.getURI());
+            response.getHeaders().set(HttpHeaders.LOCATION, "http://www.csmall.com/login?orignalUrl=" + request.getURI());
             return response.setComplete();
         }
 

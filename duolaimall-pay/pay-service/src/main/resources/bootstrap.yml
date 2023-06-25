@@ -1,0 +1,24 @@
+spring:
+  application:
+    name: service-payment
+  profiles:
+    active: dev
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 192.168.233.128:8848
+      config:
+        server-addr: 192.168.233.128:8848
+        file-extension: yaml
+        shared-configs:
+          - data-id: common.yaml
+#alipay:
+#  config:
+#    appId: 2016093000631014
+#    alipay_url: https://openapi.alipaydev.com/gateway.do
+#    app_public_key: MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA3mw2NKao9iMn4PuE4VESTGhAe4/QbwprEUqR3ttyEiL+WmAMA/NNtUmjKsCscJZKsYtqq8VaXNPdOoygmBgDlArd/IYJBJfZRo+NvGoiuXJeMYgzAdJgYLyKxlps//LBryHP0u7GDZcucOD7MhGXzg0rjCUiNrjvLrfYCQlKlsoqfbEg/Y+gsuOno+nvJqn5zW3x9gq3dT+tCE+GgRtpOgq+X6mNIFx/7RW/nbGrT4BhxrQ3cBuidk2P25l2cgSpVIid72gi1NzNcybz43GR4fKukD1BsXUXUhYSTHapn3h2QyU/qwuNHwrfL3ydXo7kz3OpUobluVU0LNQ38rJ35wIDAQAB
+#    app_private_key: MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDebDY0pqj2Iyfg+4ThURJMaEB7j9BvCmsRSpHe23ISIv5aYAwD8021SaMqwKxwlkqxi2qrxVpc0906jKCYGAOUCt38hgkEl9lGj428aiK5cl4xiDMB0mBgvIrGWmz/8sGvIc/S7sYNly5w4PsyEZfODSuMJSI2uO8ut9gJCUqWyip9sSD9j6Cy46ej6e8mqfnNbfH2Crd1P60IT4aBG2k6Cr5fqY0gXH/tFb+dsatPgGHGtDdwG6J2TY/bmXZyBKlUiJ3vaCLU3M1zJvPjcZHh8q6QPUGxdRdSFhJMdqmfeHZDJT+rC40fCt8vfJ1ejuTPc6lShuW5VTQs1DfysnfnAgMBAAECggEALJr49/AgXFRKkBUA3grbJ5WUsPLzcwFc3Xfd7xqFMtvvtIIkhrpJcDzXSyCetGl/i0GRX+dRKuKWMEK5hibyuMLBJ/5dWp11RnBNlWaXlic4eqh8yjW9fEjzb7n8uAugChY2zm9yKpGSD7MezTi3/+umOxHLXbwSw4S8/3rsiXab/J6UMwyEASJAmw6WccF5Yer92Vwi0qzRIDTGLWhnWQVnoOZqjWjlyu4l+rjnl+bVIlh8DsXiCNSqq/1vrVwtJbbKNj6haYlcmu+HvslP2/7QjUuVEO8ogmuGjaszMPU+QVx98i4+aEX6Bf+6gCYmZrGC/iDObL2dolrbSu8SkQKBgQDyLAjJjAJokqsJMA43vSBdafNo3TODFkGH2jxC+lfnYnNC11EeRDy1Gx3NeMl31/CsinfFlrYcRHfSUD6LxwMhciETqYquyQfobHJ/jsFr3t32nh/g7X/hjy3gEKliwh/rLyMpIgd6sJj1vNOP1XeY04mejTqPaOaD7lWodZcFLwKBgQDrH32XPc3TrzRbu/ZVS20SptOTASfXEyv2I9nptafQbYTjSUZPRRUnPzPcs4wLU5i5wDAWeQA4/UAAuxf/H7inTfuiGAlJHQQCX7KNQa0n4D21jD3wMRbIEbbq0sL0x/NUx/OILTFT2R5nWr8DrpfSXbwUek/GJYCA6bxfCAl6yQKBgAXgF558LRrIZCnm5pFnnz9k8KjcpQFLKu/W1ZtyY2uTseQvQSKQ2UAzljeD9K9Zp9cnzNwYWfa5moaZt8rAW00WbcMCXAD9k5mJ+AUsO3kYgR4YnAFjAbVBOgWzochpmUilbh7zWmcZnbxohmF49lvY1f/owUD1dJJC2AUsRSu1AoGATLfRuu+noVKhuuzxy5L43AUjM+xEm6Ddz0qTZ/al8xRJMABQuLzJ0iyFN5Y+M9PrGXDkP/Draaz4nURu6AfpsG15lcJSBVE6ZavkDsNHRKOefwZrj1v1GwLstGJgyo4Tj65OgDh+x+UoToEFoqXtU+7R17yxGu5Rp76cgEWXEkECgYEA5fNIgbJTQdwyDZDpZsATuyjjag3doI0+TKzcCWFoIvTqEsOsrgRxZJkT0awHABJ79fMrmRJp1T7tgMJm4zmX+pgMm7sVQfU2kcUkR6W4GCnMHooYnPkAiESH4c9+wDzuGC1LUs+iieIxNnlCmpzDDX22lkg5EPUFmItKOo5rgSM=
+#    alipay_public_key: MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA3avLEWkY/zk0vUouV4bSUvvJZLORwkMLw5MTuaDjp/loR4LMepLxvEPsF8/dzO/fkq2F8obqGzobFdBQXZUUR+pACRYM2+K46LvHMWiL4RgeutS6+7LEp3ej8GbEzVU72p47k3xX0nh34R7EpeTaOA/GXZYP8xYA0A1/dWLwnS8BBtMdMwT3IgjNofFNvoT9MmmUwjcBaRwF+8bj8iKpxtlKFQM9Cb8TUHuTrJ1u2v3ZGC96St4A6pN87qSDFGV3au2oxI6d1um7lq7N8v1OezSbKFLGlnlVTqSnrgPNSNKXf/kSQf376mn8IhhI9lAC+Tx3l9O+zMMqTSkw8I/0uwIDAQAB
+#    return_payment_url: http://api.csmall.com/api/payment/alipay/callback/return
+#    notify_payment_url: https://3r17294h06.goho.co/api/payment/alipay/callback/notify
+#    return_order_url: http://payment.csmall.com/pay/success.html

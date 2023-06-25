@@ -11,7 +11,7 @@ public class RedisConst {
     //单位：秒
     public static final long SKUKEY_TIMEOUT = 24 * 60 * 60;
     // 定义变量，记录空对象的缓存过期时间
-    public static final long SKUKEY_TEMPORARY_TIMEOUT = 10 * 60;
+    public static final long SKUKEY_TEMPORARY_TIMEOUT = 5 * 60;
 
     //单位：秒 尝试获取锁的最大等待时间
     public static final long SKULOCK_EXPIRE_PX1 = 1;
@@ -56,6 +56,8 @@ public class RedisConst {
 
     // 用户秒杀下单标记，防止重复下单
     public static final String PROMO_USER_ORDERED_FLAG = "promo:user:orderflag:";
+
+    public static final String PROMO_SUBMITTING = "promo:submitting";
 
     //用户下单标记锁定时间 单位：秒
     public static final int SECKILL__TIMEOUT = 60 * 60 * 1;
