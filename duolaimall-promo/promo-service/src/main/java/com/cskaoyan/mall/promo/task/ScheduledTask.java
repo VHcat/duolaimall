@@ -26,7 +26,7 @@ public class ScheduledTask {
      * 功能描述: 把秒杀商品导入Redis
      */
     //@Scheduled(cron = "0 0 1 * * ?")   // 每天1点执行
-    @Scheduled(cron = "0 0/1 * * * ?")   // 每分钟执行一次
+//    @Scheduled(cron = "0 0/1 * * * ?")   // 每分钟执行一次
     public void importIntoRedisTask(){
         log.info("秒杀商品导入Redis 任务开始...");
         promoService.importIntoRedis();
@@ -36,7 +36,7 @@ public class ScheduledTask {
 
 
     //@Scheduled(cron = "0 0 18 * * ?")    // 每天18点执行   // 清除秒杀产生的Redis缓存
-//    @Scheduled(cron = "0 0/1 * * * ?")   // 每分钟执行一次
+    @Scheduled(cron = "0 0/1 * * * ?")   // 每分钟执行一次
     public void clearRedisCacheTask(){
 
         log.info("清理Redis缓存任务开始...");
