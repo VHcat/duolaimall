@@ -133,7 +133,7 @@ public class PromoServiceImpl implements PromoService {
         // 1. 判断一下用户是否已经提交过秒杀下单排队请求
         RBucket<Long> bucket = redissonClient.getBucket(RedisConst.PROMO_USER_ORDERED_FLAG + userId);
         if (bucket.get() == null)  {
-            return Result.build(null, ResultCodeEnum.SECKILL_ILLEGAL);
+            return Result.build(null, ResultCodeEnum.SECKILL_RUN);
         }
 
         RMap<String, OrderRecord> orderRecordRMap = redissonClient.getMap(RedisConst.PROMO_SECKILL_ORDERS);
