@@ -1,6 +1,5 @@
 package com.cskaoyan.mall.product.service.impl;
 
-import com.alibaba.nacos.client.naming.utils.CollectionUtils;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.cskaoyan.mall.product.converter.dto.PlatformAttributeInfoConverter;
 import com.cskaoyan.mall.product.converter.param.PlatformAttributeInfoParamConverter;
@@ -11,51 +10,44 @@ import com.cskaoyan.mall.product.model.PlatformAttributeInfo;
 import com.cskaoyan.mall.product.model.PlatformAttributeValue;
 import com.cskaoyan.mall.product.query.PlatformAttributeParam;
 import com.cskaoyan.mall.product.service.PlatformAttributeService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
-import javax.annotation.Resource;
 import java.util.List;
 
-/**
- * @author VHcat 1377594091@qq.com
- * @since 2023/06/07 21:42
- */
 @Service
 public class PlatformAttributeServiceImpl implements PlatformAttributeService {
-    @Resource
+
+    @Autowired
     PlatformAttrInfoMapper platformAttrInfoMapper;
-    @Resource
+    @Autowired
     PlatformAttrValueMapper platformAttrValueMapper;
-    @Resource
+
+    @Autowired
     PlatformAttributeInfoConverter platformAttributeInfoConverter;
-    @Resource
+
+    @Autowired
     PlatformAttributeInfoParamConverter platformAttributeInfoParamConverter;
 
+
     @Override
-    public List<PlatformAttributeInfoDTO> getPlatformAttrInfoList(Long firstLevelCategoryId, Long secondLevelCategoryId, Long thirdLevelCategoryId) {
-        List<PlatformAttributeInfo> platformAttributeInfos =
-                platformAttrInfoMapper.selectPlatFormAttrInfoList(firstLevelCategoryId, secondLevelCategoryId, thirdLevelCategoryId);
+    //@RedisCache(prefix = "platformAttrInfoList:")
+    public List<PlatformAttributeInfoDTO> getPlatformAttrInfoList(Long firstLevelCategoryId
+            , Long secondLevelCategoryId, Long thirdLevelCategoryId) {
+        List<PlatformAttributeInfo> platformAttributeInfos = platformAttrInfoMapper.selectPlatFormAttrInfoList(firstLevelCategoryId, secondLevelCategoryId, thirdLevelCategoryId);
         return platformAttributeInfoConverter.platformAttributeInfoPOs2DTOs(platformAttributeInfos);
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void savePlatformAttrInfo(PlatformAttributeParam platformAttributeParam) {
-        // 更改数据库中平台属性和平台属性值
-//        platformAttrInfoMapper.insert(platformAttributeInfo);
-//        List<PlatformAttributeValueParam> attrValueList = platformAttributeParam.getAttrValueList();
-//        // 将平台属性值逐条插入到数据库中
-//        for (PlatformAttributeValueParam platformAttributeValueParam : attrValueList) {
-//            // 把PlatformAttributeParam对象转化为PlatformAttributeValue对象
-//            PlatformAttributeValue platformAttributeValue
-//                    = platformAttributeInfoParamConverter.attributeValueParam2AttributeValue(platformAttributeValueParam);
-//            platformAttrValueMapper.insert(platformAttributeValue);
-//        }
-
         // 将前端参数转化为
         PlatformAttributeInfo platformAttributeInfo
                 = platformAttributeInfoParamConverter.attributeInfoParam2Info(platformAttributeParam);
 
-        // 判断平台属性
+        // baseAttrInfo
         if (platformAttributeInfo.getId() != null) {
             // 修改数据
             platformAttrInfoMapper.updateById(platformAttributeInfo);
@@ -80,13 +72,20 @@ public class PlatformAttributeServiceImpl implements PlatformAttributeService {
                 platformAttrValueMapper.insert(platformAttributeValue);
             }
         }
-
     }
 
     @Override
     public PlatformAttributeInfoDTO getPlatformAttrInfo(Long attrId) {
-
+        // 根据id查询平台属性
         PlatformAttributeInfo platformAttributeInfo = platformAttrInfoMapper.selectById(attrId);
+
+        // 根据平台属性查询对应的属性值
+        LambdaQueryWrapper<PlatformAttributeValue> platformAttributeValueQueryWrapper = new LambdaQueryWrapper<>();
+        platformAttributeValueQueryWrapper.eq(PlatformAttributeValue::getAttrId, attrId);
+        List<PlatformAttributeValue> platformAttributeValues = platformAttrValueMapper.selectList(platformAttributeValueQueryWrapper);
+
+        // 查询到最新的平台属性值集合数据放入平台属性中！
+        platformAttributeInfo.setAttrValueList(platformAttributeValues);
 
         return platformAttributeInfoConverter.platformAttributeInfoPO2DTO(platformAttributeInfo);
     }

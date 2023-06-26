@@ -1,6 +1,5 @@
 package com.cskaoyan.mall.product.dto;
 
-import com.baomidou.mybatisplus.annotation.TableField;
 import lombok.Data;
 
 @Data

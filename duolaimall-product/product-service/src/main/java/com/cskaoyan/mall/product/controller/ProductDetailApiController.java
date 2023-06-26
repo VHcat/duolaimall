@@ -9,8 +9,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Map;
+
 @RestController
-@RequestMapping("/api/item")
+@RequestMapping("api/item")
 public class ProductDetailApiController {
 
 
@@ -21,9 +23,9 @@ public class ProductDetailApiController {
      * 获取sku详情信息
      */
     @GetMapping("{skuId}")
-    Result<ProductDetailDTO> getItem(@PathVariable Long skuId){
-        ProductDetailDTO productDetailDTO = productDetailService.getItemBySkuId(skuId);
-        return Result.ok(productDetailDTO);
+    public Result getItem(@PathVariable Long skuId){
+        ProductDetailDTO itemBySkuId = productDetailService.getItemBySkuId(skuId);
+        return Result.ok(itemBySkuId);
     }
 
 

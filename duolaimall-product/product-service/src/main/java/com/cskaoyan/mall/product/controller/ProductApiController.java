@@ -2,10 +2,7 @@ package com.cskaoyan.mall.product.controller;
 
 import com.cskaoyan.mall.common.result.Result;
 import com.cskaoyan.mall.product.dto.*;
-import com.cskaoyan.mall.product.service.CategoryService;
-import com.cskaoyan.mall.product.service.SkuService;
-import com.cskaoyan.mall.product.service.SpuService;
-import com.cskaoyan.mall.product.service.TrademarkService;
+import com.cskaoyan.mall.product.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,13 +13,10 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
-/**
- * @author VHcat 1377594091@qq.com
- * @since 2023/06/15 22:17
- */
 @RestController
-@RequestMapping("/api/product")
+@RequestMapping("api/product")
 public class ProductApiController {
+
     @Autowired
     private SkuService skuService;
 
@@ -114,6 +108,6 @@ public class ProductApiController {
     public TrademarkDTO getTrademark(@PathVariable("tmId")Long tmId){
         return trademarkService.getTrademarkByTmId(tmId);
     }
-    
+
 
 }

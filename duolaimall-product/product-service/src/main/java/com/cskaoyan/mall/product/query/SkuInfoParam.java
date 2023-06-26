@@ -1,8 +1,5 @@
 package com.cskaoyan.mall.product.query;
 
-import com.cskaoyan.mall.product.dto.SkuImageDTO;
-import com.cskaoyan.mall.product.dto.SkuPlatformAttributeValueDTO;
-import com.cskaoyan.mall.product.dto.SkuSaleAttributeValueDTO;
 import lombok.Data;
 
 import java.math.BigDecimal;

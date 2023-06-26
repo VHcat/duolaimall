@@ -18,7 +18,7 @@ public interface SpuService {
     /*
         保存完整的SPU信息
      */
-    void saveSpuInfo(SpuInfoParam spuInfoParam);
+    void saveSpuInfo(SpuInfoParam spuInfo);
 
     /*
          根据spuId获取指定SPU中包含的图片集合

@@ -1,24 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper SYSTEM "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<!--
- namespace:接口的全限定类名
--->
 <mapper namespace="com.cskaoyan.mall.product.mapper.SpuSaleAttrInfoMapper">
-    <!--结果集处理
-    autoMapping="true":实现自动映射
-    column：返回数据字段名
-    property：实体类属性名
 
-    -->
-        <resultMap id="spuSaleAttrMap" type="com.cskaoyan.mall.product.model.SpuSaleAttributeInfo" autoMapping="true">
+
+    <!--结果处理-手动映射-->
+    <resultMap id="spuSaleAttrMap" type="com.cskaoyan.mall.product.model.SpuSaleAttributeInfo" autoMapping="true">
 
         <id column="id" property="id"></id>
         <collection property="spuSaleAttrValueList" ofType="com.cskaoyan.mall.product.model.SpuSaleAttributeValue" autoMapping="true">
             <id column="sale_attr_value_id" property="id"></id>
         </collection>
     </resultMap>
-    <!-- 根据spuId获取销售属性数据 -->
+
+
+    <!--
+        根据spuId查询销售属性和销售属性值集合
+    -->
+
     <select id="selectSpuSaleAttrList"  resultMap="spuSaleAttrMap">
+
+
         select
                 ssai.id,
                 ssai.spu_id,
@@ -27,12 +28,18 @@
                 ssav.id sale_attr_value_id,
                 ssav.spu_sale_attr_id,
                 ssav.spu_sale_attr_value_name
+
          from  spu_sale_attr_info ssai inner  join  spu_sale_attr_value ssav
                       on ssai.id=ssav.spu_sale_attr_id
                   where ssai.spu_id=#{spuId}
+
+
     </select>
-    
-   <select id="selectSpuSaleAttrListCheckedBySku" resultMap="spuSaleAttrMap">
+
+    <!--
+ 根据spuId,skuId 获取销售属性数据
+-->
+    <select id="selectSpuSaleAttrListCheckedBySku" resultMap="spuSaleAttrMap">
 
         select
           ssai.id,
@@ -42,7 +49,7 @@
           spsav.id  sale_attr_value_id,
           spsav.spu_sale_attr_id,
           spsav.spu_sale_attr_value_name,
-          if(sksav.sku_id is null,0,1) is_checked
+          if(sksav.sku_id is  null,0,1) is_checked
 
         from spu_sale_attr_info ssai
         inner  join  spu_sale_attr_value spsav

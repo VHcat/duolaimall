@@ -14,9 +14,9 @@ import lombok.Data;
 @Data
 @TableName("sku_sale_attr_value")
 public class SkuSaleAttributeValue extends BaseEntity {
-
+	
 	private static final long serialVersionUID = 1L;
-
+	
 	//"库存单元id"
 	@TableField("sku_id")
 	private Long skuId;

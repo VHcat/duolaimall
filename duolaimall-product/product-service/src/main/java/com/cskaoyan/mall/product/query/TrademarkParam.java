@@ -4,6 +4,7 @@ import lombok.Data;
 
 @Data
 public class TrademarkParam {
+
     // "品牌id"
     private Long id;
     // "属性值"

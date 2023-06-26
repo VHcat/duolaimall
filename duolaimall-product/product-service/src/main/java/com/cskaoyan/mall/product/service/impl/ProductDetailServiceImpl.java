@@ -1,14 +1,11 @@
 package com.cskaoyan.mall.product.service.impl;
 
 import com.alibaba.fastjson.JSON;
-import com.cskaoyan.mall.common.constant.RedisConst;
-import com.cskaoyan.mall.product.client.SearchApiClient;
 import com.cskaoyan.mall.product.dto.*;
 import com.cskaoyan.mall.product.service.CategoryService;
 import com.cskaoyan.mall.product.service.ProductDetailService;
 import com.cskaoyan.mall.product.service.SkuService;
 import com.cskaoyan.mall.product.service.SpuService;
-import org.redisson.api.RBloomFilter;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,14 +13,12 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.stream.Collectors;
 
-/**
- * @author VHcat 1377594091@qq.com
- * @since 2023/06/13 21:40
- */
 @Service
 public class ProductDetailServiceImpl implements ProductDetailService {
+
     @Autowired
     SpuService spuService;
 
@@ -32,21 +27,19 @@ public class ProductDetailServiceImpl implements ProductDetailService {
 
     @Autowired
     CategoryService categoryService;
-
-
     @Autowired
-    SearchApiClient searchApiClient;
+    private ThreadPoolExecutor threadPoolExecutor;
+
+//    @Autowired
+//    SearchApiClient searchApiClient;
 
     @Autowired
     RedissonClient redissonClient;
+
     @Override
     public ProductDetailDTO getItemBySkuId(Long skuId) {
-        ProductDetailDTO productDetailDTO = new ProductDetailDTO();
-        RBloomFilter<Object> bloomFilter = redissonClient.getBloomFilter(RedisConst.SKU_BLOOM_FILTER);
-        if (!bloomFilter.contains(skuId)) {
-            return productDetailDTO;
-        }
 
+        ProductDetailDTO productDetailDTO = new ProductDetailDTO();
 
         // 通过skuId 查询skuInfo
 
@@ -105,7 +98,7 @@ public class ProductDetailServiceImpl implements ProductDetailService {
         productDetailDTO.setSkuAttrList(skuAttrList);
 
         //更新商品incrHotScore
-        //searchApiClient.incrHotScore(skuId);
+//        searchApiClient.incrHotScore(skuId);
 
         return productDetailDTO;
     }

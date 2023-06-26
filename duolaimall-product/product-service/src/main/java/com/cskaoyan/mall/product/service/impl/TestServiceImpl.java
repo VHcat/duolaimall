@@ -1,34 +1,43 @@
 package com.cskaoyan.mall.product.service.impl;
 
-import com.cskaoyan.mall.product.converter.dto.TestSkuProductConverter;
-import com.cskaoyan.mall.product.dto.TestSkuProductDTO;
-import com.cskaoyan.mall.product.mapper.SkuInfoMapper;
-import com.cskaoyan.mall.product.model.SkuInfo;
 import com.cskaoyan.mall.product.service.TestService;
+import org.redisson.api.RBucket;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-/**
- * Created by 北海 on 2023-06-05 14:49
- */
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+
 @Service
 public class TestServiceImpl implements TestService {
 
     @Autowired
-    SkuInfoMapper skuInfoMapper;
-
-    @Autowired
-    TestSkuProductConverter converter;
-
+    RedissonClient redissonClient;
 
     @Override
-    public TestSkuProductDTO getSkuProductInfo(Long skuId) {
+    public void incrWithLock() {
 
-        // 访问数据库查询指定skuId对应的商品数据
-        SkuInfo skuInfo = skuInfoMapper.selectById(skuId);
+         // 获取访问锁的桶
+        RLock lock = redissonClient.getLock("lock:number");
+        try {
+            // 加锁
+            lock.lock();
+            // 加锁成功，代码执行到这里
+            RBucket<Integer> bucket = redissonClient.getBucket("number");
+            // 获取key为number的value值
+            int number = bucket.get();
+            // 自增1
+            number++;
+            // 在放回redis
+            bucket.set(number);
 
-        TestSkuProductDTO testSkuProductDTO
-                = converter.skuInfo2TestSkuProductDTO(skuInfo);
-        return testSkuProductDTO;
+        } finally {
+            //  释放锁
+            lock.unlock();
+        }
+
+
     }
 }

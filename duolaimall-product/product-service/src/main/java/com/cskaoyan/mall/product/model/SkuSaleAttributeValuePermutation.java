@@ -7,6 +7,7 @@ import lombok.Data;
 public class SkuSaleAttributeValuePermutation {
 
 
+    // 3750|3753
     //"销售属性一种取值组合的拼接字符串"
     String SkuSaleAttrValuePermutation;
     //"sku商品id"

@@ -14,9 +14,9 @@ import lombok.Data;
 @Data
 @TableName("sku_platform_attr_value")
 public class SkuPlatformAttributeValue extends BaseEntity {
-
+	
 	private static final long serialVersionUID = 1L;
-
+	
 	//"属性id（冗余)"
 	@TableField("attr_id")
 	private Long attrId;

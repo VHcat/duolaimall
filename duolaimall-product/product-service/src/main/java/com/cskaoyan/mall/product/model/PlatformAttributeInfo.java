@@ -16,9 +16,9 @@ import java.util.List;
 @Data
 @TableName("platform_attr_info")
 public class PlatformAttributeInfo extends BaseEntity {
-
+	
 	private static final long serialVersionUID = 1L;
-
+	
 	//"属性名称"
 	@TableField("attr_name")
 	private String attrName;

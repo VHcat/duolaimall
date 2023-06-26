@@ -14,9 +14,9 @@ import lombok.Data;
 @Data
 @TableName("sale_attr_info")
 public class SaleAttributeInfo extends BaseEntity {
-
+	
 	private static final long serialVersionUID = 1L;
-
+	
 	//"销售属性名称"
 	@TableField("name")
 	private String name;

@@ -16,9 +16,9 @@ import lombok.Data;
 @Data
 @TableName("category_trademark")
 public class CategoryTrademark extends BaseEntity {
-
+	
 	private static final long serialVersionUID = 1L;
-
+	
 	//"三级分类编号"
 	@TableField("third_level_category_id")
 	private Long thirdLevelCategoryId;

@@ -14,9 +14,9 @@ import lombok.Data;
 @Data
 @TableName("spu_image")
 public class SpuImage extends BaseEntity {
-
+	
 	private static final long serialVersionUID = 1L;
-
+	
 	//"商品id"
 	@TableField("spu_id")
 	private Long spuId;

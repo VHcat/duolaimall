@@ -9,7 +9,6 @@ public interface CategoryService {
 
     /**
      * 查询所有的一级分类信息
-     *
      * @return
      */
     List<FirstLevelCategoryDTO> getFirstLevelCategory();
@@ -54,5 +53,5 @@ public interface CategoryService {
      */
     List<FirstLevelCategoryNodeDTO> getCategoryTreeList();
 
-    
+
 }

@@ -15,9 +15,9 @@ import java.io.Serializable;
  */
 @Data
 public class CategoryHierarchy implements Serializable {
-
+	
 	private static final long serialVersionUID = 1L;
-
+	
 	 //"一级分类编号"
 	@TableField("first_level_category_id")
 	private Long firstLevelCategoryId;

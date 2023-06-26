@@ -1,6 +1,6 @@
 package com.cskaoyan.mall.product.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.cskaoyan.mall.common.cache.RedisCache;
 import com.cskaoyan.mall.product.converter.dto.CategoryConverter;
 import com.cskaoyan.mall.product.converter.dto.TrademarkConverter;
@@ -9,139 +9,163 @@ import com.cskaoyan.mall.product.mapper.*;
 import com.cskaoyan.mall.product.model.*;
 import com.cskaoyan.mall.product.query.CategoryTrademarkParam;
 import com.cskaoyan.mall.product.service.CategoryService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import javax.annotation.Resource;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-/**
- * @author VHcat 1377594091@qq.com
- * @since 2023/06/07 15:58
- */
 @Service
 public class CategoryServiceImpl implements CategoryService {
-    @Resource
+
+    @Autowired
     FirstLevelCategoryMapper firstLevelCategoryMapper;
-    @Resource
-    CategoryConverter categoryConverter;
-    @Resource
-    TrademarkMapper trademarkMapper;
-    @Resource
-    TrademarkConverter trademarkConverter;
-    @Resource
+
+    @Autowired
+    SecondLevelCategoryMapper secondLevelCategoryMapper;
+
+    @Autowired
+    ThirdLevelCategoryMapper thirdLevelCategoryMapper;
+
+    @Autowired
     CategoryTrademarkMapper categoryTrademarkMapper;
-    @Resource
+
+    @Autowired
     CategoryHierarchyMapper categoryHierarchyMapper;
+
+    @Autowired
+    TrademarkMapper trademarkMapper;
+
+    @Autowired
+    CategoryConverter categoryConverter;
+    @Autowired
+    TrademarkConverter trademarkConverter;
+
 
     @Override
     public List<FirstLevelCategoryDTO> getFirstLevelCategory() {
+        // 查询所有的一级类目
         List<FirstLevelCategory> firstLevelCategories = firstLevelCategoryMapper.selectList(null);
-        return categoryConverter.firstLevelCategoryPOs2DTOs(firstLevelCategories);
+        List<FirstLevelCategoryDTO> firstLevelCategoryDTOs = categoryConverter.firstLevelCategoryPOs2DTOs(firstLevelCategories);
+        return firstLevelCategoryDTOs;
     }
-
-    @Resource
-    SecondLevelCategoryMapper secondLevelCategoryMapper;
-
 
     @Override
     public List<SecondLevelCategoryDTO> getSecondLevelCategory(Long firstLevelCategoryId) {
-        // 构造查询条件
-        QueryWrapper<SecondLevelCategory> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("first_level_category_id", firstLevelCategoryId);
-        List<SecondLevelCategory> secondLevelCategories = secondLevelCategoryMapper.selectList(queryWrapper);
-        return categoryConverter.secondLevelCategoryPOs2DTOs(secondLevelCategories);
+        LambdaQueryWrapper<SecondLevelCategory> secondLevelCategoryQueryWrapper = new LambdaQueryWrapper<>();
+        secondLevelCategoryQueryWrapper.eq(SecondLevelCategory::getFirstLevelCategoryId, firstLevelCategoryId);
+        // 根据一级类目查询所属的二级类目
+        List<SecondLevelCategory> secondLevelCategories = secondLevelCategoryMapper.selectList(secondLevelCategoryQueryWrapper);
+        // PO -> DTO
+        List<SecondLevelCategoryDTO> secondLevelCategoryDTOs = categoryConverter.secondLevelCategoryPOs2DTOs(secondLevelCategories);
+        return secondLevelCategoryDTOs;
     }
-
-    @Resource
-    ThirdLevelCategoryMapper thirdLevelCategoryMapper;
 
     @Override
     public List<ThirdLevelCategoryDTO> getThirdLevelCategory(Long secondLevelCategoryId) {
-        // 构造查询条件
-        QueryWrapper<ThirdLevelCategory> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("second_level_category_id", secondLevelCategoryId);
-        List<ThirdLevelCategory> thirdLevelCategories = thirdLevelCategoryMapper.selectList(queryWrapper);
-        return categoryConverter.thirdLevelCategoryPOs2DTOs(thirdLevelCategories);
+        // 查询二级类目所属的三级类目
+        LambdaQueryWrapper<ThirdLevelCategory> thirdLevelCategoryQueryWrapper = new LambdaQueryWrapper<>();
+        thirdLevelCategoryQueryWrapper.eq(ThirdLevelCategory::getSecondLevelCategoryId, secondLevelCategoryId);
+
+        List<ThirdLevelCategory> thirdLevelCategories = thirdLevelCategoryMapper.selectList(thirdLevelCategoryQueryWrapper);
+
+        // PO -> DTO
+        List<ThirdLevelCategoryDTO> thirdLevelCategoryDTOS = categoryConverter.thirdLevelCategoryPOs2DTOs(thirdLevelCategories);
+        return thirdLevelCategoryDTOS;
     }
 
     @Override
     public List<TrademarkDTO> findTrademarkList(Long category3Id) {
-        // 先通过三级类目类目查询品牌id，再通过品牌id查询其余数据
-//        QueryWrapper<CategoryTrademark> queryWrapper = new QueryWrapper<>();
-//        queryWrapper.eq("third_level_category_id", category3Id);
-//        List<CategoryTrademark> categoryTrademarkList = categoryTrademarkMapper.selectList(queryWrapper);
-        Map<String, Object> map = new HashMap<>();
-        map.put("third_level_category_id", category3Id);
-        List<CategoryTrademark> categoryTrademarkList = categoryTrademarkMapper.selectByMap(map);
-        // 获得品牌id
-        List<Trademark> trademarks = new ArrayList<>();
-        for (CategoryTrademark categoryTrademark : categoryTrademarkList) {
-            Long trademarkId = categoryTrademark.getTrademarkId();
-            Trademark trademark = trademarkMapper.selectById(trademarkId);
-            trademarks.add(trademark);
-        }
-        return trademarkConverter.trademarkPOs2DTOs(trademarks);
-    }
+        // 在category_trademark表中根据类目，查询所属所有商品id
+        LambdaQueryWrapper<CategoryTrademark> categoryTrademarkQueryWrapper = new LambdaQueryWrapper<>();
+        categoryTrademarkQueryWrapper.eq(CategoryTrademark::getThirdLevelCategoryId, category3Id);
 
+        List<CategoryTrademark> categoryTrademarks = categoryTrademarkMapper.selectList(categoryTrademarkQueryWrapper);
+
+        //  判断CategoryTrademarkList 这个集合
+        if(!CollectionUtils.isEmpty(categoryTrademarks)){
+            //  需要获取到这个集合中的品牌Id 集合数据
+            List<Long> tradeMarkIdList = categoryTrademarks.stream().map(baseCategoryTrademark -> {
+                return baseCategoryTrademark.getTrademarkId();
+            }).collect(Collectors.toList());
+            //  正常查询数据的话... 需要根据品牌Id 来获取集合数据！
+            List<Trademark> trademarks = trademarkMapper.selectBatchIds(tradeMarkIdList);
+            List<TrademarkDTO> trademarkDTOs = trademarkConverter.trademarkPOs2DTOs(trademarks);
+            return trademarkDTOs;
+
+        }
+        //  如果集合为空，则默认返回空
+
+        return null;
+    }
 
     @Override
     public void save(CategoryTrademarkParam categoryTrademarkParam) {
+        //  获取到品牌Id 集合数据
         List<Long> trademarkIdList = categoryTrademarkParam.getTrademarkIdList();
-        Long category3Id = categoryTrademarkParam.getCategory3Id();
-        for (Long aLong : trademarkIdList) {
-            CategoryTrademark categoryTrademark = new CategoryTrademark();
-            categoryTrademark.setThirdLevelCategoryId(category3Id);
-            categoryTrademark.setTrademarkId(aLong);
-            // 插入
-            categoryTrademarkMapper.insert(categoryTrademark);
-        }
 
+        //  判断
+        if (!CollectionUtils.isEmpty(trademarkIdList)){
+            //  做映射关系
+          trademarkIdList.stream().map((trademarkId) -> {
+                //  创建一个分类Id 与品牌的关联的对象
+                CategoryTrademark categoryTrademark = new CategoryTrademark();
+                categoryTrademark.setThirdLevelCategoryId(categoryTrademarkParam.getCategory3Id());
+                categoryTrademark.setTrademarkId(trademarkId);
+                //  返回数据
+                return categoryTrademark;
+            }).forEach(
+                    categoryTrademark -> categoryTrademarkMapper.insert(categoryTrademark)
+          );
+        }
     }
 
     @Override
-    public List<TrademarkDTO> findUnLinkedTrademarkList(Long thirdLevelCategoryId) {
-        // 查询已经分类的品牌id
-        List<CategoryTrademark> categoryTrademarkList = categoryTrademarkMapper.selectList(null);
-        List<Long> categoryTrademarkIds = new ArrayList<>();
-        for (CategoryTrademark categoryTrademark : categoryTrademarkList) {
-            Long categoryTrademarkId = categoryTrademark.getTrademarkId();
-            categoryTrademarkIds.add(categoryTrademarkId);
+    public List<TrademarkDTO> findUnLinkedTrademarkList(Long category3Id) {
+        //  哪些是关联的品牌Id
+        LambdaQueryWrapper<CategoryTrademark> baseCategoryTrademarkQueryWrapper = new LambdaQueryWrapper<>();
+        baseCategoryTrademarkQueryWrapper.eq(CategoryTrademark::getThirdLevelCategoryId,category3Id);
+        List<CategoryTrademark> baseCategoryTrademarkList
+                = categoryTrademarkMapper.selectList(baseCategoryTrademarkQueryWrapper);
+
+        //  判断
+        if (!CollectionUtils.isEmpty(baseCategoryTrademarkList)){
+            //  找到关联的品牌Id 集合数据 {1,3}
+            List<Long> tradeMarkIdList = baseCategoryTrademarkList.stream().map(categoryTrademark -> {
+                return categoryTrademark.getTrademarkId();
+            }).collect(Collectors.toList());
+            //  在所有的品牌Id 中将这些有关联的品牌Id 给过滤掉就可以！
+            //  select * from base_trademark; 外面 baseTrademarkMapper.selectList(null) {1,2,3,5}
+            List<Trademark> trademarkList = trademarkMapper.selectList(null).stream()
+                    .filter(baseTrademark -> !tradeMarkIdList.contains(baseTrademark.getId()))
+                    .collect(Collectors.toList());
+
+            List<TrademarkDTO> trademarkDTOs = trademarkConverter.trademarkPOs2DTOs(trademarkList);
+            //  返回数据
+            return trademarkDTOs;
         }
-        // 总品牌id
-        List<Trademark> trademarkList = trademarkMapper.selectList(null);
-        List<Long> trademarkIds = new ArrayList<>();
-        for (Trademark trademark : trademarkList) {
-            Long id = trademark.getId();
-            trademarkIds.add(id);
-        }
-        // 所有的品牌类目去除已经被分类的品牌类目
-        // 对于category_trademark表中全部id和当前id取差集
-        List<Long> difference = trademarkIds.stream()
-                .filter(item -> !categoryTrademarkIds.contains(item))
-                .collect(Collectors.toList());
-        List<Trademark> unTrademarkList = trademarkMapper.selectBatchIds(difference);
-        return trademarkConverter.trademarkPOs2DTOs(unTrademarkList);
+        //  如果说这个三级分类Id 下 没有任何品牌！ 则获取到所有的品牌数据！
+        List<Trademark> trademarks = trademarkMapper.selectList(null);
+        return trademarkConverter.trademarkPOs2DTOs(trademarks);
     }
 
     @Override
-    public void remove(Long thirdLevelCategoryId, Long trademarkId) {
-        // 构建wrapper
-        QueryWrapper<CategoryTrademark> wrapper = new QueryWrapper<>();
-        wrapper.eq("third_level_category_id", thirdLevelCategoryId);
-        wrapper.eq("trademark_id", trademarkId);
-        // 删除
-        categoryTrademarkMapper.delete(wrapper);
+    public void remove(Long category3Id, Long trademarkId) {
+        //  逻辑删除： 本质更新操作 is_deleted
+        //  更新： update base_category_trademark set is_deleted = 1 where category3_id=? and trademark_id=?;
+        LambdaQueryWrapper<CategoryTrademark> categoryTrademarkQueryWrapper = new LambdaQueryWrapper<>();
+        categoryTrademarkQueryWrapper.eq(CategoryTrademark::getThirdLevelCategoryId,category3Id);
+        categoryTrademarkQueryWrapper.eq(CategoryTrademark::getTrademarkId,trademarkId);
+        categoryTrademarkMapper.delete(categoryTrademarkQueryWrapper);
     }
 
+    @Override
     @RedisCache(prefix = "categoryHierarchyByCategory3Id:")
-    @Override
-    public CategoryHierarchyDTO getCategoryViewByCategoryId(Long thirdLevelCategoryId) {
-        List<CategoryHierarchy> categoryHierarchies = categoryHierarchyMapper.selectCategoryHierarchy(thirdLevelCategoryId);
+    public CategoryHierarchyDTO getCategoryViewByCategoryId(Long category3Id) {
+        List<CategoryHierarchy> categoryHierarchies = categoryHierarchyMapper.selectCategoryHierarchy(category3Id);
         if (CollectionUtils.isEmpty(categoryHierarchies)) {
             return null;
         }
@@ -149,7 +173,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    @RedisCache(prefix = "category")
+    //@RedisCache(prefix = "category")
     public List<FirstLevelCategoryNodeDTO> getCategoryTreeList() {
         // 声明几个json 集合
         ArrayList<FirstLevelCategoryNodeDTO> firstLevelCategoryTreeNodes = new ArrayList<>();
@@ -187,15 +211,15 @@ public class CategoryServiceImpl implements CategoryService {
         List<SecondLevelCategoryNodeDTO> secondLevelCategoryNodes = new ArrayList<>();
 
         // 循环获取二级分类数据
-        Map<Long, List<CategoryHierarchy>> firstLevelCategoryChildrenMap = firstLevelCategories.stream()
+        Map<Long, List<CategoryHierarchy>> firstLevelCategoryChildrenMap  = firstLevelCategories.stream()
                 .collect(Collectors.groupingBy(CategoryHierarchy::getSecondLevelCategoryId));
 
         // 循环遍历
-        for (Map.Entry<Long, List<CategoryHierarchy>> secondLevelEntry : firstLevelCategoryChildrenMap.entrySet()) {
+        for (Map.Entry<Long, List<CategoryHierarchy>> secondLevelEntry  : firstLevelCategoryChildrenMap.entrySet()) {
             // 获取二级分类Id
-            Long secondLevelCategoryId = secondLevelEntry.getKey();
+            Long secondLevelCategoryId  = secondLevelEntry.getKey();
             // 获取二级分类下的所有集合
-            List<CategoryHierarchy> secondLevelCategories = secondLevelEntry.getValue();
+            List<CategoryHierarchy> secondLevelCategories  = secondLevelEntry.getValue();
             // 声明二级分类对象
             SecondLevelCategoryNodeDTO secondLevelCategoryNode = new SecondLevelCategoryNodeDTO();
             secondLevelCategoryNode.setCategoryId(secondLevelCategoryId);
@@ -213,15 +237,14 @@ public class CategoryServiceImpl implements CategoryService {
 
     private List<ThirdLevelCategoryNodeDTO> buildThirdLevelCategoryNodes(List<CategoryHierarchy> secondLevelCategories) {
         // 循环三级分类数据, 封装为ThirdLevelCategoryNodeDTO
-        List<ThirdLevelCategoryNodeDTO> thirdLevelCategoryNodeDTOs = secondLevelCategories.stream()
-                .map(categoryHierarchy -> {
-                    ThirdLevelCategoryNodeDTO thirdLevelCategoryNode = new ThirdLevelCategoryNodeDTO();
-                    thirdLevelCategoryNode.setCategoryId(categoryHierarchy.getThirdLevelCategoryId());
-                    thirdLevelCategoryNode.setCategoryName(categoryHierarchy.getThirdLevelCategoryName());
-                    return thirdLevelCategoryNode;
-                })
-                .collect(Collectors.toList());
+        List<ThirdLevelCategoryNodeDTO> thirdLevelCategoryNodeDTOs = secondLevelCategories.stream().map(categoryHierarchy -> {
+            ThirdLevelCategoryNodeDTO thirdLevelCategoryNode = new ThirdLevelCategoryNodeDTO();
+            thirdLevelCategoryNode.setCategoryId(categoryHierarchy.getThirdLevelCategoryId());
+            thirdLevelCategoryNode.setCategoryName(categoryHierarchy.getThirdLevelCategoryName());
+            return thirdLevelCategoryNode;
+        }).collect(Collectors.toList());
 
         return thirdLevelCategoryNodeDTOs;
     }
+
 }

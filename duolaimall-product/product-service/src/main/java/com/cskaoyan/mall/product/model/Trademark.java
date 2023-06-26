@@ -14,9 +14,9 @@ import lombok.Data;
 @Data
 @TableName("trademark")
 public class Trademark extends BaseEntity {
-
+	
 	private static final long serialVersionUID = 1L;
-
+	
 	//"属性值"
 	@TableField("tm_name")
 	private String tmName;

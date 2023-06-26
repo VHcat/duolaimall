@@ -1,44 +1,81 @@
 package com.cskaoyan.mall.product.controller;
 
 import com.cskaoyan.mall.common.result.Result;
-import com.cskaoyan.mall.product.dto.FirstLevelCategoryDTO;
-import com.cskaoyan.mall.product.dto.SecondLevelCategoryDTO;
-import com.cskaoyan.mall.product.dto.ThirdLevelCategoryDTO;
+import com.cskaoyan.mall.product.dto.*;
+import com.cskaoyan.mall.product.query.CategoryTrademarkParam;
 import com.cskaoyan.mall.product.service.CategoryService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Resource;
 import java.util.List;
-
-/**
- * @author VHcat 1377594091@qq.com
- * @since 2023/06/07 15:36
- */
 @RestController
-@RequestMapping("/admin/product")
+@RequestMapping("admin/product")
 public class CategoryController {
-    @Resource
-    CategoryService categoryService;
-    
-    @GetMapping("/getCategory1")
-    public Result getCategory1() {
+
+    @Autowired
+    private CategoryService categoryService;
+
+
+    @PostMapping("/baseCategoryTrademark/save")
+    public Result save(@RequestBody CategoryTrademarkParam categoryTrademarkVo){
+        //  保存方法
+        categoryService.save(categoryTrademarkVo);
+        return Result.ok();
+    }
+
+    @DeleteMapping("/baseCategoryTrademark/remove/{thirdLevelCategoryId}/{trademarkId}")
+    public Result remove(@PathVariable Long thirdLevelCategoryId, @PathVariable Long trademarkId){
+        //  调用服务层方法
+        categoryService.remove(thirdLevelCategoryId, trademarkId);
+        return Result.ok();
+    }
+
+    @GetMapping("/baseCategoryTrademark/findTrademarkList/{thirdLevelCategoryId}")
+    public Result findTrademarkList(@PathVariable Long thirdLevelCategoryId){
+        List<TrademarkDTO> list = categoryService.findTrademarkList(thirdLevelCategoryId);
+        //  返回
+        return Result.ok(list);
+    }
+
+    @GetMapping("/baseCategoryTrademark/findCurrentTrademarkList/{thirdLevelCategoryId}")
+    public Result findCurrentTrademarkList(@PathVariable Long thirdLevelCategoryId){
+        List<TrademarkDTO> list = categoryService.findUnLinkedTrademarkList(thirdLevelCategoryId);
+        //  返回
+        return Result.ok(list);
+    }
+
+    /**
+     * 查询所有的一级分类信息
+     * @return
+     */
+    @GetMapping("getCategory1")
+    public Result<List<FirstLevelCategoryDTO>> getFirstLevelCategory() {
         List<FirstLevelCategoryDTO> firstLevelCategory = categoryService.getFirstLevelCategory();
         return Result.ok(firstLevelCategory);
     }
 
-    // 查询二级类目
-    @GetMapping("/getCategory2/{firstLevelCategoryId}")
-    public Result getCategory2(@PathVariable long firstLevelCategoryId) {
+    /**
+     * 根据一级分类Id 查询二级分类数据
+     */
+    @GetMapping("getCategory2/{firstLevelCategoryId}")
+    public Result<List<SecondLevelCategoryDTO>> getSecondLevelCategory(@PathVariable("firstLevelCategoryId") Long firstLevelCategoryId) {
         List<SecondLevelCategoryDTO> secondLevelCategory = categoryService.getSecondLevelCategory(firstLevelCategoryId);
         return Result.ok(secondLevelCategory);
     }
 
-    @GetMapping("/getCategory3/{SecondLevelCategoryId}")
-    public Result gerCategory3(@PathVariable long SecondLevelCategoryId) {
-        List<ThirdLevelCategoryDTO> thirdLevelCategory = categoryService.getThirdLevelCategory(SecondLevelCategoryId);
+    /**
+     * 根据二级分类Id 查询三级分类数据
+     */
+    @GetMapping("getCategory3/{thirdLevelCategoryId}")
+    public Result<List<ThirdLevelCategoryDTO>> getThirdLevelCategory(@PathVariable("thirdLevelCategoryId") Long secondLevelCategoryId) {
+        List<ThirdLevelCategoryDTO> thirdLevelCategory = categoryService.getThirdLevelCategory(secondLevelCategoryId);
         return Result.ok(thirdLevelCategory);
     }
+
+
+
+
+
+
+
 }

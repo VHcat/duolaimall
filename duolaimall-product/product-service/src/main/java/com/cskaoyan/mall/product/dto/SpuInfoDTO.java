@@ -28,8 +28,8 @@ public class SpuInfoDTO {
     private List<SpuSaleAttributeInfoDTO> spuSaleAttributeInfoList;
 
     //"商品的图片集合"
-    private List<SpuImageDTO> spuImageList;
+    private List<SpuImageDTO> SpuImageList;
 
     //"商品的海报图片集合"
-    private List<SpuPosterDTO> spuPosterList;
+    private List<SpuPosterDTO> SpuPosterList;
 }

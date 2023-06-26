@@ -16,9 +16,9 @@ import java.util.List;
 @Data
 @TableName("spu_sale_attr_info")
 public class SpuSaleAttributeInfo extends BaseEntity {
-
+	
 	private static final long serialVersionUID = 1L;
-
+	
 	//"商品id"
 	@TableField("spu_id")
 	private Long spuId;

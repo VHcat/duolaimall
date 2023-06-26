@@ -14,9 +14,9 @@ import lombok.Data;
 @Data
 @TableName("third_level_category")
 public class ThirdLevelCategory extends BaseEntity {
-
+	
 	private static final long serialVersionUID = 1L;
-
+	
 	//"三级分类名称"
 	@TableField("name")
 	private String name;

@@ -14,8 +14,8 @@ public interface SpuInfoConverter {
     SpuSaleAttributeInfoDTO spuSaleAttributeInfoPO2DTO(SpuSaleAttributeInfo spuSaleAttributeInfo);
     List<SpuSaleAttributeInfoDTO> spuSaleAttributeInfoPOs2DTOs(List<SpuSaleAttributeInfo> spuSaleAttributeInfos);
 
-    SpuSaleAttributeValueDTO spuSaleAttributeValuePO2DTO(SpuSaleAttributeValue spuSaleAttributeValue);
-    List<SpuSaleAttributeValueDTO> spuSaleAttributeValuePOs2DTOs(List<SpuSaleAttributeValue> spuSaleAttributeValues);
+    SpuSaleAttributeValueDTO spuSaleAttributeValuePO2DTO (SpuSaleAttributeValue spuSaleAttributeValue);
+    List<SpuSaleAttributeValueDTO> spuSaleAttributeValuePOs2DTOs (List<SpuSaleAttributeValue> spuSaleAttributeValues);
 
     SpuImageDTO spuImagePO2spuImageDTO(SpuImage spuImage);
     List<SpuImageDTO> spuImagePOs2DTOs(List<SpuImage> spuImages);

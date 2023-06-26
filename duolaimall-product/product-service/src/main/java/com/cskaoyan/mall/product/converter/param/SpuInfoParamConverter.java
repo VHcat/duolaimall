@@ -29,6 +29,6 @@ public interface SpuInfoParamConverter {
     List<SpuSaleAttributeInfo> spuSaleAttributeParams2Infos(List<SpuSaleAttributeInfoParam> spuSaleAttributeInfos);
     @Mapping(source = "saleAttrValueName", target = "spuSaleAttrValueName")
     @Mapping(source = "baseSaleAttrId", target = "spuSaleAttrId")
-    SpuSaleAttributeValue spuSaleAttributeValueParam2Value(SpuSaleAttributeValueParam spuSaleAttributeValue);
-    List<SpuSaleAttributeValue> spuSaleAttributeValueParams2Values(List<SpuSaleAttributeValueParam> spuSaleAttributeValues);
+    SpuSaleAttributeValue spuSaleAttributeValueParam2Value (SpuSaleAttributeValueParam spuSaleAttributeValue);
+    List<SpuSaleAttributeValue> spuSaleAttributeValueParams2Values (List<SpuSaleAttributeValueParam> spuSaleAttributeValues);
 }

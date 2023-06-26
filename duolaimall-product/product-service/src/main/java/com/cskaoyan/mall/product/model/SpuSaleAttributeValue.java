@@ -15,9 +15,9 @@ import lombok.Data;
 @Data
 @TableName("spu_sale_attr_value")
 public class SpuSaleAttributeValue extends BaseEntity {
-
+	
 	private static final long serialVersionUID = 1L;
-
+	
 	//"商品id"
 	@TableField("spu_id")
 	private Long spuId;

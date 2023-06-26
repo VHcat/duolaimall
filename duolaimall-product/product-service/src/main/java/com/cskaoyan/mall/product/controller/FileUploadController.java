@@ -5,91 +5,69 @@ import io.minio.BucketExistsArgs;
 import io.minio.MakeBucketArgs;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
-import io.minio.errors.*;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.util.UUID;
 
-/**
- * Created by 北海 on 2023-06-06 11:07
- */
 @RestController
-@RequestMapping("/admin/product")
+@RequestMapping("admin/product")
 public class FileUploadController {
 
     // 获取文件上传对应的地址
     @Value("${minio.endpointUrl}")
     public String endpointUrl;
+
     @Value("${minio.accessKey}")
     public String accessKey;
+
     @Value("${minio.secreKey}")
     public String secreKey;
+
     @Value("${minio.bucketName}")
     public String bucketName;
 
-    /*
-         返回的字符串，代表的是上传图片，对应的访问url
-     */
-    @PostMapping("/fileUpload")
-    public Result fileUpload(MultipartFile file) throws IOException, InvalidKeyException, InvalidResponseException, InsufficientDataException, NoSuchAlgorithmException, ServerException, InternalException, XmlParserException, ErrorResponseException {
+    //  文件上传控制器
+    @PostMapping("fileUpload")
+    public Result fileUpload(MultipartFile file) throws Exception{
+        //  准备获取到上传的文件路径！
+        String url = "";
 
-        // 创建一个MinioClient对象
-        MinioClient client = MinioClient.builder()
-                .endpoint(endpointUrl)
-                .credentials(accessKey, secreKey)
-                .build();
-
-
-         // 判断桶是否存在，如果不存在则创建
-        boolean exists = client.bucketExists(BucketExistsArgs
-                .builder()
-                .bucket(bucketName)
-                .build());
-        if (!exists) {
-            System.out.println("桶" + bucketName + "不存在，重新创建！");
-            client.makeBucket(MakeBucketArgs.builder().bucket(bucketName).build());
+        // 使用MinIO服务的URL，端口，Access key和Secret key创建一个MinioClient对象
+        MinioClient minioClient =
+                MinioClient.builder()
+                        .endpoint(endpointUrl)
+                        .credentials(accessKey, secreKey)
+                        .build();
+        // 检查存储桶是否已经存在
+        boolean isExist = minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucketName).build());
+        if(isExist) {
+            System.out.println("Bucket already exists.");
+        } else {
+            // 创建一个名为asiatrip的存储桶，用于存储照片的zip文件。
+            minioClient.makeBucket(MakeBucketArgs.builder()
+                    .bucket(bucketName)
+                    .build());
         }
+        //  定义一个文件的名称 : 文件上传的时候，名称不能重复！
+        String fileName = System.currentTimeMillis()+ UUID.randomUUID().toString();
+        // 使用putObject上传一个文件到存储桶中。
+        //  minioClient.putObject("asiatrip","asiaphotos.zip", "/home/user/Photos/asiaphotos.zip");
+        minioClient.putObject(
+                PutObjectArgs.builder().bucket(bucketName).object(fileName).stream(
+                        file.getInputStream(), file.getSize(), -1)
+                        .contentType(file.getContentType())
+                        .build());
+        url = endpointUrl+"/"+bucketName+"/"+fileName;
 
-//        // 检查存储桶是否已经存在
-//        boolean isExist = client.bucketExists(BucketExistsArgs.builder().bucket(bucketName).build());
-//        if(isExist) {
-//            System.out.println("Bucket already exists.");
-//        } else {
-//            // 创建一个名为asiatrip的存储桶，用于存储照片的zip文件。
-//            client.makeBucket(MakeBucketArgs.builder()
-//                    .bucket(bucketName)
-//                    .build());
-//        }
-
-        // 为了让文件名不重复根据时间和uuid，计算文件名
-        String fileName = System.currentTimeMillis() + UUID.randomUUID().toString();
-
-        // 向桶中上传文件数据
-        client.putObject(PutObjectArgs
-                .builder()
-                // 指定上传文件的桶
-                .bucket(bucketName)
-                // 指定以流的形式，上传文件内容, -1表示minio自动每次上传数据的大小
-                .stream(file.getInputStream(), file.getSize(), -1)
-                // 指定流数据的数据类型
-                .contentType(file.getContentType())
-                // 上传的数据在桶中名称
-                .object(fileName)
-                .build());
-
-
-        // 上传成功，返回访问图片的url
-        String url = endpointUrl + "/" + bucketName + "/" +fileName;
-        
-  
+        System.out.println("url:\t"+url);
+        //  将文件上传之后的路径返回给页面！
         return Result.ok(url);
-
     }
+
+
 }
